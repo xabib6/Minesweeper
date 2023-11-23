@@ -1,0 +1,30 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Minesweeper.MVVM.ViewModels"
+                    xmlns:views="clr-namespace:Minesweeper.MVVM.Views"
+                    xmlns:models="clr-namespace:Minesweeper.MVVM.Models"
+                    xmlns:converters="clr-namespace:Minesweeper.Helpers.Converters"
+                    xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+                    >
+
+    <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
+        <views:MainWindowView/>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:Cell}">
+        <Button  Width="30" Height="30" IsEnabled="{Binding IsChecked, Converter={converters:BoolReverseConverter}}">
+            <Button.InputBindings>
+                <MouseBinding Gesture="LeftClick" Command="{Binding Check}"/>
+                <MouseBinding Gesture="RightClick" Command="{Binding ChangeGuessedState}"/>
+                <MouseBinding Gesture="MiddleClick" Command="{Binding QuickCheck}"/>
+            </Button.InputBindings>
+            <MultiBinding Converter="{converters:StateToContentConverter}">
+                <Binding Path="IsChecked"/>
+                <Binding Path="RealState"/>
+                <Binding Path="GuessedState"/>
+                <Binding Path="MinesAround"/>
+            </MultiBinding>
+        </Button>
+    </DataTemplate>
+
+</ResourceDictionary>
