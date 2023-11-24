@@ -1,21 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FontAwesome.Sharp;
+using Minesweeper.MVVM.Models;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Minesweeper.Helpers.Converters
 {
-    internal sealed class BoolReverseConverter : BaseConverter
+    internal sealed class GameStateToIconConverter : BaseConverter
     {
         public override object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool condition)
+            if (value is GameState gameState)
             {
-                return !condition;
+                return gameState switch
+                {
+                    GameState.InProcess => IconChar.Smile,
+                    GameState.Victory => IconChar.Laugh,
+                    GameState.Defeat => IconChar.Frown,
+                    _ => IconChar.Meh
+                };
             }
-            throw new ArgumentException();
+            return IconChar.Meh;
         }
 
         public override object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

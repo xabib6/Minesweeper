@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Minesweeper.MVVM.Models;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -7,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Minesweeper.Helpers.Converters
 {
-    internal sealed class BoolReverseConverter : BaseConverter
+    internal sealed class GameStateToBoolConverter : BaseConverter
     {
         public override object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool condition)
+            if (value is GameState gameState)
             {
-                return !condition;
+                return gameState == GameState.InProcess;
             }
-            throw new ArgumentException();
+            return new ArgumentException();
         }
 
         public override object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

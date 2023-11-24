@@ -6,13 +6,18 @@
                     xmlns:converters="clr-namespace:Minesweeper.Helpers.Converters"
                     xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
                     >
-
+    <SolidColorBrush x:Key="CheckedCellColor">#FFE8EDF9</SolidColorBrush>
+    
     <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
         <views:MainWindowView/>
     </DataTemplate>
 
+    <Style TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="16"/>
+    </Style>
+    
     <DataTemplate DataType="{x:Type models:Cell}">
-        <Button  Width="30" Height="30" IsEnabled="{Binding IsChecked, Converter={converters:BoolReverseConverter}}">
+        <Button  Width="30" Height="30" >
             <Button.InputBindings>
                 <MouseBinding Gesture="LeftClick" Command="{Binding Check}"/>
                 <MouseBinding Gesture="RightClick" Command="{Binding ChangeGuessedState}"/>
@@ -24,6 +29,15 @@
                 <Binding Path="GuessedState"/>
                 <Binding Path="MinesAround"/>
             </MultiBinding>
+            <Button.Style>
+                <Style TargetType="{x:Type Button}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsChecked}" Value="true">
+                            <Setter Property="Background" Value="{StaticResource CheckedCellColor}"/>                            
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
         </Button>
     </DataTemplate>
 

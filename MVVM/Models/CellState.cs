@@ -2,7 +2,7 @@
 {
     public enum CellState
     {
-        Emtpy,
+        Clear,
         Mined,
         CorrectGuess,
         WrongGuess

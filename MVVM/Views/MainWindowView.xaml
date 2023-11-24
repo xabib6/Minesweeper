@@ -7,13 +7,43 @@
         xmlns:vm="clr-namespace:Minesweeper.MVVM.ViewModels"
         xmlns:models="clr-namespace:Minesweeper.MVVM.Models"
         xmlns:converters="clr-namespace:Minesweeper.Helpers.Converters"
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
         mc:Ignorable="d"
-        Title="Minesweeper" Height="450" Width="800">
+        Title="Minesweeper" Height="Auto" Width="Auto" BorderBrush="Orange" BorderThickness="4"
+        >
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
-    <Grid>
-        <ItemsControl ItemsSource="{Binding GameController.Field.Cells}">
+    <Grid Background="LightSteelBlue"> 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <fa:IconBlock Icon="LandMineOn" Foreground="Red"/>
+            <TextBlock Text="{Binding GameController.RestMinesCount}" Margin="10 0 0 0" MinWidth="20"/>
+        </WrapPanel>
+
+        <Button Command="{Binding GameController.Restart}" Grid.Column="1" Width="Auto" HorizontalAlignment="Center" >
+            <fa:IconBlock Icon="{Binding GameController.GameState, Converter={converters:GameStateToIconConverter}}" 
+                          Height="40" Width="40" FontSize="30" TextAlignment="Center" VerticalAlignment="Stretch" Padding="0 5 0 0"/>
+        </Button>
+
+        <WrapPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="{Binding GameController.TimeElapsed}" MinWidth="30"/>
+            <fa:IconBlock Icon="Stopwatch" Margin="10 0 0 0" />
+        </WrapPanel>
+
+        <ItemsControl Grid.Row="1" Grid.ColumnSpan="3"
+                      ItemsSource="{Binding GameController.Cells}" 
+                      IsEnabled="{Binding GameController.GameState, Converter={converters:GameStateToBoolConverter}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel/>

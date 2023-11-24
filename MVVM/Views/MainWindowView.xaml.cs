@@ -7,6 +7,7 @@ namespace Minesweeper.MVVM.Views
         public MainWindowView()
         {
             InitializeComponent();
+            SizeToContent = SizeToContent.WidthAndHeight;
         }
     }
 }

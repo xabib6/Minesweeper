@@ -13,7 +13,8 @@ namespace Minesweeper.MVVM.Models
 
         public bool IsChecked { get => isChecked; set => SetField(ref isChecked, value); }
         private bool isChecked;
-        public int MinesAround { get; set; }
+        public int MinesAround { get => minesAround; set => SetField(ref minesAround, value); }
+        private int minesAround;
 
         public event Action<Cell>? CellChecked;
         public event Action<Cell>? CellQuickChecked;
@@ -27,7 +28,7 @@ namespace Minesweeper.MVVM.Models
                 {
                     CellChecked?.Invoke(this);
                 }, 
-                obj => !IsChecked && GuessedState == CellState.Emtpy);
+                obj => !IsChecked && GuessedState == CellState.Clear);
             }
         }
         private ICommand? check;
@@ -39,7 +40,8 @@ namespace Minesweeper.MVVM.Models
                 return quickCheck ??= new RelayCommand(obj =>
                 {
                     CellQuickChecked?.Invoke(this);
-                });
+                },
+                obj => IsChecked);
             }
         }
         private ICommand? quickCheck;
@@ -56,5 +58,13 @@ namespace Minesweeper.MVVM.Models
             }
         }
         private ICommand? changeGuessedState;
+
+        public void CompareGuessedReal()
+        {
+            if (GuessedState == CellState.Mined)
+            {
+                GuessedState = GuessedState == RealState ? CellState.CorrectGuess : CellState.WrongGuess;
+            }
+        }
     }
 }

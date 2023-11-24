@@ -8,8 +8,7 @@ namespace Minesweeper.MVVM.ViewModels
 
         public MainWindowViewModel() 
         {
-            GameController.ApplyDifficulty.Execute(this);
-            GameController.Generate();
+
         }
     }
 }
