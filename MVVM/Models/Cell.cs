@@ -20,6 +20,14 @@ namespace Minesweeper.MVVM.Models
         public event Action<Cell>? CellQuickChecked;
         public event Action<Cell>? GuessChanged;
 
+        public void CompareGuessedReal()
+        {
+            if (GuessedState == CellState.Mined)
+            {
+                GuessedState = GuessedState == RealState ? CellState.CorrectGuess : CellState.WrongGuess;
+            }
+        }
+
         public ICommand Check
         {
             get
@@ -58,13 +66,6 @@ namespace Minesweeper.MVVM.Models
             }
         }
         private ICommand? changeGuessedState;
-
-        public void CompareGuessedReal()
-        {
-            if (GuessedState == CellState.Mined)
-            {
-                GuessedState = GuessedState == RealState ? CellState.CorrectGuess : CellState.WrongGuess;
-            }
-        }
+        
     }
 }

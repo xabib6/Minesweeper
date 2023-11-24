@@ -16,23 +16,26 @@ namespace Minesweeper.MVVM.Models
         public GameState GameState { get => gameState; set => SetField(ref gameState, value); }
         private GameState gameState;
 
-        public SettingsChanger SettingsChanger;
-        private Stopwatch _stopwatch = Stopwatch.StartNew();
-
+        public SettingsChanger SettingsChanger { get; set; }
+        public ObservableCollection<ObservableCollection<Cell>> Cells { get; set; } = new();
         private IEnumerable<Cell> _allCells => Cells.SelectMany(c => c);
+        private Stopwatch _stopwatch = Stopwatch.StartNew();
 
         public GameController()
         {
             SettingsChanger = new(this);
-            SettingsChanger.Difficulty = Difficulty.Low;
-            SettingsChanger.ApplyDifficulty.Execute(this);
             RestartGame();
             StartTimer();
         }
 
-        public ObservableCollection<ObservableCollection<Cell>> Cells { get; set; } = new();
+        public void RestartGame()
+        {
+            GameState = GameState.InProcess;
+            GenerateField();
+            _stopwatch.Restart();
+        }
 
-        public void Generate()
+        private void GenerateField()
         {
             ClearField();
             var height = SettingsChanger.Height;
@@ -56,17 +59,18 @@ namespace Minesweeper.MVVM.Models
             }
         }
 
-        private void TrySetMine(Cell cell, int cellsCount, int minesCount)
+        private void ClearField()
         {
-            if (cell.RealState == CellState.Mined)
+            for (int i = 0; i < Cells.Count; i++)
             {
-                return;
+                for (int j = 0; j < Cells[i].Count; j++)
+                {
+                    UnsubscribeCell(Cells[i][j]);
+                }
             }
-            cell.RealState = CellState.Mined;
-            RestMinesCount++;
+            Cells.Clear();
+            RestMinesCount = 0;
         }
-        
-
 
         private void CellChecked(Cell cell)
         {
@@ -78,45 +82,7 @@ namespace Minesweeper.MVVM.Models
                 CellQuickChecked(cell);
             }
             CheckWin();
-        }
-
-        private void CheckDefeat(Cell cell)
-        {
-            if (cell.RealState == CellState.Mined)
-            {
-                cell.GuessedState = CellState.WrongGuess;
-                var minedCells = _allCells.Where(c => c.RealState == CellState.Mined).ToList();
-                var guessedCells = _allCells.Where(c => c.GuessedState == CellState.Mined).ToList();
-                foreach (var item in minedCells)
-                {
-                    item.IsChecked = true;
-                    cell.GuessedState = CellState.WrongGuess;
-                    item.CompareGuessedReal();
-                }
-                foreach (var item in guessedCells)
-                {
-                    item.IsChecked = true;
-                    if (item.RealState == CellState.Mined)
-                    {
-                        item.GuessedState = CellState.CorrectGuess;
-                    }
-                    else
-                    {
-                        item.GuessedState = CellState.WrongGuess;
-                    }
-                }
-                GameState = GameState.Defeat;
-            }            
-        }
-
-        private void CheckWin()
-        {
-            if (_allCells.Where(c => !c.IsChecked).Count() == SettingsChanger.AllMinesCount)
-            {
-                _allCells.ToList().ForEach(c => c.IsChecked = true);
-                GameState = GameState.Victory;
-            }
-        }
+        }        
 
         private void CellQuickChecked(Cell cell)
         {
@@ -148,23 +114,82 @@ namespace Minesweeper.MVVM.Models
             }
         }
 
+        private void CheckDefeat(Cell cell)
+        {
+            if (cell.RealState == CellState.Mined)
+            {
+                cell.GuessedState = CellState.WrongGuess;
+                ShowRestMines();
+                ShowMarkedCells();
+                GameState = GameState.Defeat;
+            }
+        }
+
+        private void CheckWin()
+        {
+            if (_allCells.Where(c => !c.IsChecked).Count() == SettingsChanger.AllMinesCount)
+            {
+                ShowRestMines();
+                ShowMarkedCells();
+                GameState = GameState.Victory;
+            }
+        }
+
         private int CalculateMinesAround(Cell cell)
         {
             return Cells.FindElementsAround(cell).Where(c => c.RealState == CellState.Mined).Count();
         }
 
-
-        private void ClearField()
+        private void TrySetMine(Cell cell, int cellsCount, int minesCount)
         {
-            for (int i = 0; i < Cells.Count; i++)
+            if (cell.RealState == CellState.Mined)
             {
-                for (int j = 0; j < Cells[i].Count; j++)
+                return;
+            }
+            cell.RealState = CellState.Mined;
+            RestMinesCount++;
+        }
+
+        private async void StartTimer()
+        {
+            await Task.Run(() =>
+            {                
+                while (true)
                 {
-                    UnsubscribeCell(Cells[i][j]);
+                    while (GameState == GameState.InProcess)
+                    {
+                        TimeElapsed = _stopwatch.Elapsed.Seconds + _stopwatch.Elapsed.Minutes*60;
+                    }
+                }
+            });
+        }
+
+        private void ShowRestMines()
+        {
+            var minedCells = _allCells.Where(c => c.RealState == CellState.Mined).ToList();
+            foreach (var cell in minedCells)
+            {
+                cell.IsChecked = true;
+                cell.CompareGuessedReal();
+            }
+        }
+
+        private void ShowMarkedCells()
+        {
+            var guessedCells = _allCells.Where(c => c.GuessedState == CellState.Mined).ToList();
+
+            foreach (var cell in guessedCells)
+            {
+                cell.IsChecked = true;
+                if (cell.RealState == CellState.Mined)
+                {
+                    cell.GuessedState = CellState.CorrectGuess;
+                }
+                else
+                {
+                    cell.GuessedState = CellState.WrongGuess;
                 }
             }
-            Cells.Clear();
-            RestMinesCount = 0;
         }
 
         private void UnsubscribeCell(Cell cell)
@@ -180,7 +205,6 @@ namespace Minesweeper.MVVM.Models
             cell.GuessChanged += GuessChanged;
         }
 
-
         public ICommand Restart
         {
             get
@@ -192,26 +216,5 @@ namespace Minesweeper.MVVM.Models
             }
         }
         private ICommand restart;
-
-        private async void StartTimer()
-        {
-            await Task.Run(() =>
-            {                
-                while (true)
-                {
-                    while (GameState == GameState.InProcess)
-                    {
-                        TimeElapsed = _stopwatch.Elapsed.Seconds + _stopwatch.Elapsed.Minutes;
-                    }
-                }
-            });
-        }
-
-        private void RestartGame()
-        {
-            GameState = GameState.InProcess;
-            Generate();
-            _stopwatch.Restart();
-        }
     }
 }

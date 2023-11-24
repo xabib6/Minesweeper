@@ -1,9 +1,4 @@
 ﻿using Minesweeper.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Minesweeper.MVVM.Models
@@ -16,14 +11,6 @@ namespace Minesweeper.MVVM.Models
         private int width;
         public int AllMinesCount { get => allMinesCount; set => SetField(ref allMinesCount, value); }
         private int allMinesCount;
-
-        private GameController _gameController;
-
-        public SettingsChanger(GameController gameController)
-        {
-            _gameController = gameController;
-        }
-
         public Difficulty Difficulty
         {
             get => difficulty; set
@@ -33,29 +20,55 @@ namespace Minesweeper.MVVM.Models
         }
         private Difficulty difficulty = Difficulty.Low;
 
-        public ICommand ApplyDifficulty
-        {
-            get
-            {
-                return applyDifficulty ??= new RelayCommand(obj =>
-                {
-                    SetMapDifficulty();
-                    _gameController.Generate();
-                });
-            }
-        }
-        private ICommand? applyDifficulty;
+        private GameController _gameController;
 
-        private void SetMapDifficulty()
+        public SettingsChanger(GameController gameController)
+        {
+            _gameController = gameController;
+            SetDifficulty();
+        }
+
+        private void SetDifficulty()
         {
             (Height, Width, AllMinesCount) = Difficulty switch
             {
                 Difficulty.Low => (10, 10, 10),
                 Difficulty.Medium => (20, 20, 40),
                 Difficulty.High => (30, 30, 100),
-                Difficulty.Custom => (Height, Width, allMinesCount),
+                Difficulty.Custom => (Height, Width, AllMinesCount),
                 _ => throw new NotImplementedException()
             };
         }
+
+        public ICommand ChangeDifficulty
+        {
+            get
+            {
+                return changeDifficulty ??= new RelayCommand(obj =>
+                {
+                    Difficulty = obj.ToString() switch
+                    {
+                        "1" => Difficulty.Low,
+                        "2" => Difficulty.Medium,
+                        "3" => Difficulty.High,
+                        "4" => Difficulty.Custom,
+                    };
+                });
+            }
+        }
+        private ICommand changeDifficulty;
+
+        public ICommand ApplyDifficulty
+        {
+            get
+            {
+                return applyDifficulty ??= new RelayCommand(obj =>
+                {
+                    SetDifficulty();
+                    _gameController.RestartGame();
+                });
+            }
+        }
+        private ICommand? applyDifficulty;
     }
 }

@@ -6,8 +6,7 @@
                     xmlns:converters="clr-namespace:Minesweeper.Helpers.Converters"
                     xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
                     >
-    <SolidColorBrush x:Key="CheckedCellColor">#FFE8EDF9</SolidColorBrush>
-    
+
     <DataTemplate DataType="{x:Type vm:MainWindowViewModel}">
         <views:MainWindowView/>
     </DataTemplate>
@@ -33,12 +32,33 @@
                 <Style TargetType="{x:Type Button}">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsChecked}" Value="true">
-                            <Setter Property="Background" Value="{StaticResource CheckedCellColor}"/>                            
+                            <Setter Property="Background" Value="Khaki"/>                            
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Button.Style>
         </Button>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type models:SettingsChanger}">
+        <Grid>
+            <StackPanel>
+                <TextBlock Text="Сложность: "/>
+                <RadioButton Content="Легко (10x10, 10 бомб)" Command="{Binding ChangeDifficulty}" CommandParameter="1"/>
+                <RadioButton Content="Средне (20x20, 40 бомб)" Command="{Binding ChangeDifficulty}" CommandParameter="2"/>
+                <RadioButton Content="Сложно (30x30, 100 бомб)" Command="{Binding ChangeDifficulty}" CommandParameter="3"/>
+                <RadioButton Content="Пользовательская" Command="{Binding ChangeDifficulty}" CommandParameter="4"/>
+                <WrapPanel IsEnabled="{Binding Difficulty, Converter={converters:DifficultyToBoolConverter}}">
+                    <TextBlock Text="Высота: "/>
+                    <TextBox Text="{Binding Height}"/>
+                    <TextBlock Text="Ширина: "/>
+                    <TextBox Text="{Binding Width}"/>
+                    <TextBlock Text="Кол-во мин: "/>
+                    <TextBox Text="{Binding AllMinesCount}"/>
+                </WrapPanel>
+                <Button Content="Применить" Command="{Binding ApplyDifficulty}"/>
+            </StackPanel>
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>

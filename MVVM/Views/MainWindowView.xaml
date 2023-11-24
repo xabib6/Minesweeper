@@ -14,10 +14,12 @@
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>
-    <Grid Background="LightSteelBlue"> 
+    
+    <Grid Background="LightSteelBlue">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition MaxHeight="40"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -26,23 +28,27 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <ContentControl Content="{Binding GameController.SettingsChanger}" Grid.Row="1" Grid.ColumnSpan="3"
+                        Visibility="{Binding ShowSettings, Converter={converters:BoolToVisibilityConverter}}"/>
+
+        <WrapPanel HorizontalAlignment="Center" VerticalAlignment="Center" >
             <fa:IconBlock Icon="LandMineOn" Foreground="Red"/>
             <TextBlock Text="{Binding GameController.RestMinesCount}" Margin="10 0 0 0" MinWidth="20"/>
         </WrapPanel>
 
-        <Button Command="{Binding GameController.Restart}" Grid.Column="1" Width="Auto" HorizontalAlignment="Center" >
+        <Button Command="{Binding GameController.Restart}" Grid.Column="1" Width="Auto" HorizontalAlignment="Center">
             <fa:IconBlock Icon="{Binding GameController.GameState, Converter={converters:GameStateToIconConverter}}" 
                           Height="40" Width="40" FontSize="30" TextAlignment="Center" VerticalAlignment="Stretch" Padding="0 5 0 0"/>
         </Button>
 
-        <WrapPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <WrapPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <TextBlock Text="{Binding GameController.TimeElapsed}" MinWidth="30"/>
             <fa:IconBlock Icon="Stopwatch" Margin="10 0 0 0" />
         </WrapPanel>
 
-        <ItemsControl Grid.Row="1" Grid.ColumnSpan="3"
+        <ItemsControl Grid.Row="1" Grid.ColumnSpan="3" Margin="0 5"
                       ItemsSource="{Binding GameController.Cells}" 
+                      Visibility="{Binding ShowSettings, Converter={converters:BoolToVisibilityConverter}, ConverterParameter=reverse}"
                       IsEnabled="{Binding GameController.GameState, Converter={converters:GameStateToBoolConverter}}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -61,6 +67,10 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        
+
+        <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" Command="{Binding ShowHideSettings}">
+            <fa:IconBlock Icon="Tools" Width="30" Height="30" Padding="0 5 0 0" FontSize="20"/>
+        </Button>
+
     </Grid>
 </Window>
